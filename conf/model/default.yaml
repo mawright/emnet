@@ -1,0 +1,9 @@
+defaults:
+  - backbone: default
+  - transformer: default
+  - criterion: default
+  - denoising: default
+  - _self_
+
+include_aux_outputs: true
+predict_box: false

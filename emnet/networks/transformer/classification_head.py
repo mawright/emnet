@@ -3,7 +3,7 @@ from typing import Union
 import torch
 from torch import nn, Tensor
 
-from emsim.utils.misc_utils import get_layer
+from emnet.utils.misc_utils import get_layer
 
 
 class ClassificationHead(nn.Module):

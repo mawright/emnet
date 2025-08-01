@@ -1,4 +1,4 @@
-from emsim.utils.sparse_utils.indexing.indexing import batch_sparse_index
+from pytorch_sparse_utils.indexing import batch_sparse_index
 
 
 import torch
@@ -17,14 +17,14 @@ def key_offset_grid(window_height: int, window_width: int, device=None):
     return offsets
 
 
-def key_index_grid(query_indices: Tensor, key_offsets: int):
+def key_index_grid(query_indices: Tensor, key_offsets: Tensor):
     # add batch dim with 0 batch offset
     key_offsets = torch.cat(
         [
             key_offsets.new_zeros([key_offsets.shape[0], key_offsets.shape[1], 1]),
             key_offsets,
         ],
-        -1,
+        dim=-1,
     )
     return query_indices.unsqueeze(1).unsqueeze(1) + key_offsets
 

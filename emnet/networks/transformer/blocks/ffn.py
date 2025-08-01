@@ -2,7 +2,7 @@ from typing import Union
 
 from torch import Tensor, nn
 
-from emsim.utils.misc_utils import get_layer
+from emnet.utils.misc_utils import get_layer
 
 
 class FFNBlock(nn.Module):

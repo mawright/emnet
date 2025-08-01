@@ -1,0 +1,7 @@
+defaults:
+  - base_config
+  - model: default
+  - dataset: default
+  - training: default
+  - system: default
+  - _self_

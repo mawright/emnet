@@ -1,32 +1,32 @@
+import logging
 import os
 from math import ceil, floor
-from typing import Any, Callable, Optional, Union, Sequence, cast
-import logging
-from typing_extensions import TypeGuard
+from typing import Any, Callable, Optional, Sequence, Union, cast
 
+import h5py
 import numpy as np
 import sparse
-import h5py
 import torch
+from pytorch_sparse_utils.conversion import pydata_sparse_to_torch_sparse
 from torch.utils.data import IterableDataset
 from torch.utils.data.dataloader import default_collate
+from typing_extensions import TypeGuard
 
-from emsim.config.dataset import DatasetConfig
-from emsim.dataclasses import (
+from ..config.dataset import DatasetConfig
+from ..dataclasses import (
     BoundingBox,
+    IncidencePoint,
     IonizationElectronPixel,
     PixelSet,
-    IncidencePoint,
 )
-from emsim.preprocessing import NSigmaSparsifyTransform
-from emsim.geant.dataclasses import GeantElectron, GeantGridsize
-from emsim.geant.io import (
-    read_electrons_from_hdf,
-)
-from emsim.utils.misc_utils import (
+from ..preprocessing import NSigmaSparsifyTransform
+from ..utils.misc_utils import (
     random_chunks,
 )
-from pytorch_sparse_utils.conversion import pydata_sparse_to_torch_sparse
+from .dataclasses import GeantElectron, GeantGridsize
+from .io import (
+    read_electrons_from_hdf,
+)
 
 # keys in here will not be batched in the collate fn
 _KEYS_TO_NOT_BATCH = ("local_trajectories_pixels", "hybrid_sparse_tensors")
@@ -636,6 +636,7 @@ def electron_collate_fn(
                     to_stack = _sparse_pad([sample[key] for sample in batch])
                     sparse_batched = sparse.stack(to_stack, axis=0)
 
+                assert isinstance(sparse_batched, sparse.COO)
                 out_batch[key] = pydata_sparse_to_torch_sparse(sparse_batched)
 
                 # batch offsets for the nonzero points in the sparse tensor

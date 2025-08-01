@@ -1,0 +1,108 @@
+spatial_dimension: ${spatial_dimension}
+d_model: 256
+n_heads: 8
+dropout: 0.1
+dim_feedforward: 1024
+activation_fn: "gelu"
+attn_proj_bias: false
+norm_first: true
+
+# to compute number of feature levels
+backbone_decoder_layers: ${model.backbone.decoder.layers}
+
+# Sampling points for MSDeformAttention
+n_deformable_points: 4
+
+# Per-level neighborhood sizes for NeighborhoodAttention
+neighborhood_sizes: [3, 5, 7, 9]
+
+# Salience filtering parameters
+level_filter_ratio: [0.25, 0.5, 1.0, 1.0]
+layer_filter_ratio: [1.0, 0.8, 0.6, 0.6, 0.4, 0.2]
+
+# Number of object queries
+query_embeddings: 500
+
+use_background_embedding: true
+
+mask_main_queries_from_denoising: ${model.denoising.mask_main_queries_from_denoising}
+
+encoder:
+  n_layers: 6
+  max_tokens_sa: 1000
+  max_tokens_non_sa: 10000
+  
+  layer_filter_ratio: ${model.transformer.layer_filter_ratio}
+  use_ms_deform_attn: false
+  use_neighborhood_attn: true
+
+  use_rope: true
+
+  use_background_embedding: ${model.transformer.use_background_embedding}
+
+decoder:
+  n_layers: 6
+  
+  use_ms_deform_attn: false
+  use_neighborhood_attn: true
+  use_full_cross_attn: false    
+  
+  detach_updated_positions: true
+  look_forward_twice: true
+  layers_share_heads: true
+  predict_box: ${model.predict_box}
+  
+  use_rope: true
+
+  classification_head:
+    hidden_dim: ${model.transformer.d_model}
+    n_layers: 2
+    activation_fn: "gelu"
+
+  position_head:
+    hidden_dim: ${model.transformer.d_model}
+    n_layers: 2
+    activation_fn: "gelu"
+
+  std_dev_head:
+    in_dim: ${model.transformer.d_model}  # Inherited value
+    hidden_dim: ${model.transformer.d_model}
+    n_layers: 2
+    activation_fn: "gelu"
+    scaling_factor: 0.001
+    eps: 1e-6
+
+  segmentation_head:
+    # Inherited values
+    embed_dim: ${model.transformer.d_model}
+    n_heads: ${model.transformer.n_heads}
+    dim_feedforward: ${model.transformer.dim_feedforward}
+    dropout: ${model.transformer.dropout}
+    attn_proj_bias: ${model.transformer.attn_proj_bias}
+    norm_first: ${model.transformer.norm_first}
+
+    n_layers: 2
+    activation_fn: "gelu"
+    query_patch_diameter: 7
+    
+    rope: ${model.transformer.rope}
+
+rope:
+  spatial_dimension: ${spatial_dimension}
+  spatial_base_theta: 100.0
+  level_base_theta: 10.0
+  share_heads: false
+  freq_group_pattern: PARTITION  # SINGLE, PARTITION, CLOSURE
+  enforce_freq_groups_equal: true
+
+background_transformer:
+  embed_dim: ${model.transformer.d_model}
+  n_heads: ${model.transformer.n_heads}
+  dim_feedforward: ${model.transformer.dim_feedforward}
+  dropout: ${model.transformer.dropout}
+  activation_fn: ${model.transformer.activation_fn}
+  attn_proj_bias: ${model.transformer.attn_proj_bias}
+  norm_first: ${model.transformer.norm_first}
+  
+  rope_base_theta: ${model.transformer.rope.level_base_theta}
+  rope_share_heads: ${model.transformer.rope.share_heads}

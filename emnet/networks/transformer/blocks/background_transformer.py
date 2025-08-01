@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from nd_rotary_encodings import RoPEEncodingND
 from pytorch_sparse_utils.batching.batch_utils import (
     batch_offsets_from_sparse_tensor_indices,
-    padded_to_concatenated,
+    concatenated_to_padded,
 )
 from torch import Tensor, nn
 
@@ -112,8 +112,8 @@ class BackgroundEmbeddingAttentionBlock(nn.Module):
         kv_batch_offsets = batch_offsets_from_sparse_tensor_indices(
             stacked_feature_maps.indices()
         )
-        key, pad_mask = padded_to_concatenated(key, kv_batch_offsets)
-        value, _ = padded_to_concatenated(value, kv_batch_offsets)
+        key, pad_mask = concatenated_to_padded(key, kv_batch_offsets)
+        value, _ = concatenated_to_padded(value, kv_batch_offsets)
 
         # split and transpose heads
         head_dim = self.embed_dim // self.n_heads

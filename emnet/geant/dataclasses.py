@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from emsim.dataclasses import (
+from ..dataclasses import (
     IncidencePoint,
     PixelSet,
 )
@@ -15,10 +15,10 @@ class GeantGridsize:
     ymax_pixel: int
     xmax_um: float
     ymax_um: float
-    xmin_pixel: Optional[int] = 0
-    ymin_pixel: Optional[int] = 0
-    xmin_um: Optional[float] = 0.0
-    ymin_um: Optional[float] = 0.0
+    xmin_pixel: int = 0
+    ymin_pixel: int = 0
+    xmin_um: float = 0.0
+    ymin_um: float = 0.0
 
     @property
     def pixel_size_um(self):

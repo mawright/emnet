@@ -4,6 +4,7 @@ import MinkowskiEngine as ME
 from torch import Tensor, nn
 
 from pytorch_sparse_utils.conversion import torch_sparse_to_minkowski
+from pytorch_sparse_utils.shape_ops import sparse_reshape
 from .decoder.model import MinkowskiSparseUnetDecoder
 from .encoder.model import MinkowskiSparseResnetV2
 
@@ -31,6 +32,11 @@ class MinkowskiSparseResnetUnet(ME.MinkowskiNetwork):
     def forward(self, x: Union[Tensor, ME.SparseTensor]) -> list[ME.SparseTensor]:
         if isinstance(x, Tensor):
             assert x.is_sparse
+            if x.dense_dim() == 0:
+                # convert sparse feature dim to dense dim
+                x = sparse_reshape(
+                    x, x.shape[: x.sparse_dim() - 1], x.shape[x.sparse_dim() - 1 :]
+                )
             x = torch_sparse_to_minkowski(x)
         enc_out: list[Tensor] = self.encoder(x)
         # x = [  # don't use the stem output

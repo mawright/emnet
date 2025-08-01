@@ -1,17 +1,17 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import numpy as np
 import h5py
 import pandas as pd
 
-from emsim.dataclasses import (
+from emnet.dataclasses import (
     Event,
     IncidencePoint,
     IonizationElectronPixel,
     EnergyLossPixel,
     PixelSet,
 )
-from emsim.geant.dataclasses import (
+from emnet.geant.dataclasses import (
     GeantElectron,
     GeantGridsize,
     Trajectory,
@@ -19,7 +19,9 @@ from emsim.geant.dataclasses import (
 )
 
 
-def read_files(pixels_file: str, trajectory_file: str = None) -> List[GeantElectron]:
+def read_files(
+    pixels_file: str, trajectory_file: Optional[str] = None
+) -> List[GeantElectron]:
     grid, pixel_events = read_pixelized_geant_output(pixels_file)
     if trajectory_file is not None:
         trajectories = read_trajectory_file(trajectory_file)
@@ -142,7 +144,9 @@ def read_electrons_from_hdf(
     unsort_order = np.argsort(sort_order)
     with h5py.File(h5_file, "r") as f:
         grid_group = f["grid"]
-        grid = GeantGridsize(**{key: grid_group[key][()].item() for key in grid_group.keys()})
+        grid = GeantGridsize(
+            **{key: grid_group[key][()].item() for key in grid_group.keys()}
+        )
 
         incidence = {
             "id": np.zeros(n_electrons, dtype=np.uint32),
