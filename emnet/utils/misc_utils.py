@@ -53,7 +53,7 @@ def is_int_list(list_: Any) -> TypeGuard[list[int]]:
     return isinstance(list_, list) and all(isinstance(item, int) for item in list_)
 
 
-@torch.jit.ignore
+@torch.jit.ignore  # pyright: ignore[reportArgumentType]
 def can_broadcast_shapes(*shapes) -> bool:
     """
     Returns True if the shapes can be broadcasted.
@@ -106,8 +106,8 @@ def multilevel_normalized_xy(sparse_tensor: Tensor, spatial_shapes: Tensor) -> T
 def _trim(subtensor: Tensor) -> Tensor:
     subtensor = subtensor.coalesce()
     indices, values = subtensor.indices(), subtensor.values()
-    shape = subtensor.shape
-    n_electrons = indices[0].max().item() + 1
+    shape = list(subtensor.shape)
+    n_electrons = int(indices[0].max().item()) + 1
     new_shape = (n_electrons, *shape[1:])
     return torch.sparse_coo_tensor(indices, values, new_shape).coalesce()
 
@@ -119,12 +119,12 @@ def bhwn_to_nhw_iterator_over_batches_torch(tensor: Tensor) -> list[Tensor]:
     return [_trim(t) for t in tensor.unbind()]
 
 
-def bhwn_to_nhw_iterator_over_batches_pydata_sparse(array: sparse.SparseArray):
-    assert isinstance(array, sparse.SparseArray)
+def bhwn_to_nhw_iterator_over_batches_pydata_sparse(array: sparse.COO):
+    assert isinstance(array, sparse.COO)
 
     array = array.transpose([0, 3, 1, 2])
 
-    def trim(subarray: sparse.SparseArray):
+    def trim(subarray: sparse.COO):
         max_electron_index = subarray.coords[0].max() + 1
         return subarray[:max_electron_index]
 

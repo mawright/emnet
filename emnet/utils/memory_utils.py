@@ -36,5 +36,3 @@ def collect_memory_stats(
         prefix + "allocated_mb": allocated / MB,
         prefix + "cached_mb": cached / MB,
     })
-
-    stats.

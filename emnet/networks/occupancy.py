@@ -1,3 +1,5 @@
+from typing import Union
+
 import spconv.pytorch as spconv
 import torch
 import torch.nn.functional as F
@@ -22,7 +24,7 @@ class OccupancyPredictor(nn.Module):
         self.predictor = spconv.SubMConv2d(in_features, out_classes, kernel_size)
         self.map_list_index = map_list_index
 
-    def forward(self, x: Tensor, *args):
+    def forward(self, x: Union[Tensor, spconv.SparseConvTensor], *args):
         if isinstance(x, list):
             x = x[self.map_list_index]
         if isinstance(x, Tensor) and x.is_sparse:
