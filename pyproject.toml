@@ -1,0 +1,85 @@
+[project]
+name = "emnet"
+description = "Sparse high-resolution small object detection for electron microscope superresolution"
+authors = [
+    {name = "Matthew A. Wright", email = "mawright@lbl.gov"}
+]
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">= 3.9"
+dependencies = [
+    "numpy",
+    "torch",
+    "torchvision",
+    "lightning",
+    "pytorch-sparse",
+    "timm",
+    "torchmetrics",
+    "pycocotools",
+    "tensorboard",
+    "tensorboardx",
+    "hydra-core",
+    "torchvision",
+    "transformers",
+    "h5py",
+    "cython",
+    "yaml",
+    "pynvml",
+    "scipy",
+    "termcolor",
+    "portalocker",
+    "sympy",
+    "fire",
+    "ninja",
+    "lark",
+    "deprecation",
+    "stempy",
+    "pytorch_sparse_utils @ git+https://github.com/mawright/pytorch-sparse-utils.git",
+    "nd_rotary_encodings @ git+https://github.com/mawright/nd-rotary-encodings.git",
+    "sparse_transformer_layers @ git+https://github.com/mawright/sparse-transformer-layers.git",
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "emnet",
+    "emnet.*",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-env",
+    "pytest-xdist",
+    "pytest-cov",
+    "hypothesis",
+]
+docs = ["mkdocs", "mkdocstrings", "mkdocstrings-python"]
+
+[tool.pytest.ini_options]
+env = [
+    "OMP_NUM_THREADS=16",  # MinkowskiEngine issues a warning on import if this is unset
+    "CUDA_LAUNCH_BLOCKING=1",  # Makes debugging easier
+]
+markers = [
+    "cuda_if_available: mark test to run on CUDA when available, otherwise fall back to CPU",
+    "cpu_and_cuda: mark test to run on both cpu as well as CUDA if available"
+]
+filterwarnings = [
+    "ignore:.*custom_[fb]wd.*:FutureWarning:spconv.pytorch.functional",  # spconv import
+    "ignore:.*Importing from timm\\.models\\.layers.*:FutureWarning:timm.models.layers", 
+    "ignore:.*locale.getdefaultlocale.*:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["emnet"]
+parallel = true
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if torch\\.jit\\.is_scripting\\(\\):",
+]
